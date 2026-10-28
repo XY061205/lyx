@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="travel">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f4ed"><meta name="description" content="成都旅行攻略，按出发城市估算往返交通时间与费用，规划观光路线。"><meta name="keywords" content="成都旅行攻略,成都交通,成都旅游路线,成都三日游,成都往返交通,成都自由行,成都景点路线">
+  <title>慢游攻略 — 蜀韵·成都</title><link rel="stylesheet" href="styles.css"><script src="app.js" defer></script>
+</head>
+<body>
+  <div class="leaf-field" aria-hidden="true"><span class="bamboo-leaf leaf-one">⌁</span><span class="bamboo-leaf leaf-two">⌁</span><span class="bamboo-leaf leaf-three">⌁</span><span class="bamboo-leaf leaf-four">⌁</span><span class="bamboo-leaf leaf-five">⌁</span><span class="bamboo-leaf leaf-six">⌁</span><span class="bamboo-leaf leaf-seven">⌁</span><span class="bamboo-leaf leaf-eight">⌁</span></div>
+  <div class="panda-walkers" aria-hidden="true"><span class="panda panda-top">🐼</span><span class="panda panda-right">🐼</span><span class="panda panda-bottom">🐼</span><span class="panda panda-left">🐼</span></div>
+  <header class="site-header"><a class="brand" href="index.html" aria-label="蜀韵成都首页"><span class="brand-mark" aria-hidden="true">蜀</span><span><strong>蜀韵·成都</strong><small>CHENGDU · SICHUAN</small></span></a><button class="menu-toggle" type="button" aria-expanded="false" aria-label="展开导航">☰</button><nav class="site-nav" aria-label="主导航"><a href="index.html">首页</a><a href="food.html">美食</a><a href="sights.html">景点</a><a href="culture.html">文化</a><a href="travel.html" aria-current="page">攻略</a></nav></header>
+  <main>
+    <section class="page-hero travel-hero"><p class="eyebrow">PLAN YOUR JOURNEY · 轻松出发</p><h1>把成都，安排进日程</h1><p>选好出发地，比较往返交通，再留几天给慢生活。</p></section>
+    <section class="section travel-section"><div class="section-heading align-left"><p class="eyebrow">GETTING TO CHENGDU</p><h2>先选出发地，再看交通参考</h2><p>费用为成人往返估算区间，不含市内交通；实际班次与票价以购票平台为准。</p></div>
+      <div class="origin-picker"><label for="origin-city">我的往返出发地</label><select id="origin-city"><option value="beijing">北京</option><option value="shanghai">上海</option><option value="guangzhou">广州</option><option value="chongqing">重庆</option></select><span>目的地：成都</span></div>
+      <div class="table-wrap"><table class="route-table"><caption id="route-caption">北京 ⇄ 成都 · 成人往返参考</caption><thead><tr><th scope="col">交通方式</th><th scope="col">耗时</th><th scope="col">费用（往返/人）</th></tr></thead><tbody id="route-rows"></tbody></table></div>
+      <p class="source-note">参考说明：铁路耗时及票价区间为常见车次的规划估算；机票受日期、航司与提前预订时间影响较大。出行前请在<a href="https://www.12306.cn/" target="_blank" rel="noopener noreferrer">中国铁路 12306</a>、航空公司或正规票务平台查询实时信息。</p>
+      <section class="route-plan"><div><p class="eyebrow">A LITTLE CITY WALK</p><h2 id="itinerary-title">北京出发 · 成都三日漫游</h2><p id="itinerary-intro">先抵达市区安顿，再将人文街区、熊猫与山水分日体验，避免来回奔波。</p></div>
+        <ol class="itinerary-list" id="itinerary-list"></ol>
+      </section>
+      <div class="voice-card"><span class="voice-panda" aria-hidden="true">🐼</span><div><h3>熊猫旅行播报员</h3><p id="voice-text">选好出发地后，让小熊猫为你播报交通与行程建议。</p></div><button class="voice-button" type="button" data-speak="travel">▶ 听行程播报</button></div>
+    </section>
+  </main>
+  <footer class="site-footer"><a class="footer-brand" href="index.html">蜀韵·成都</a><p>在竹影与烟火之间，遇见成都。</p><nav aria-label="页尾导航"><a href="food.html">美食</a><a href="sights.html">景点</a><a href="culture.html">文化</a><a href="travel.html">旅行攻略</a></nav><small>© 2026 蜀韵·成都 · 旅行信息仅供参考</small></footer>
+</body>
+</html>

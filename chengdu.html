@@ -1,0 +1,1177 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#F7F3E8">
+  <title>成都漫游地图</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bamboo: #2F6B5E;
+      --river: #3A7CA5;
+      --lotus: #E8A0A8;
+      --paper: #F7F3E8;
+      --ink: #1F2A2A;
+      --line: #D8D2C4;
+      --muted: #596360;
+      --human: #2F6B5E;
+      --park: #557B4E;
+      --food: #A85D45;
+      --nature: #3A7CA5;
+      --night: #8A5473;
+      --radius: 16px;
+      --serif: "Noto Serif SC", "Songti SC", "STSong", Georgia, serif;
+      --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei",
+        "PingFang SC", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      background:
+        radial-gradient(ellipse at 10% 12%, rgba(232, 160, 168, 0.09), transparent 28rem),
+        var(--paper);
+      color: var(--ink);
+      font-family: var(--sans);
+      line-height: 1.6;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    .page {
+      width: min(100% - 48px, 1440px);
+      margin: 0 auto;
+      padding: 48px 0 40px;
+    }
+
+    .page-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 30px;
+    }
+
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 8px;
+      color: var(--bamboo);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+    }
+
+    .eyebrow::before {
+      width: 25px;
+      height: 1px;
+      background: var(--bamboo);
+      content: "";
+    }
+
+    h1 {
+      margin: 0;
+      font-family: var(--serif);
+      font-size: clamp(34px, 4vw, 52px);
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      margin: 12px 0 0;
+      color: #43504C;
+      font-size: 15px;
+      letter-spacing: 0.04em;
+    }
+
+    .header-note {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 10px 14px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: #35433F;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .header-note svg {
+      width: 17px;
+      height: 17px;
+      color: var(--bamboo);
+    }
+
+    .explorer {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      min-height: 720px;
+      overflow: hidden;
+      border: 1px solid #D3CDBF;
+      border-radius: 20px;
+      background: #FBF9F2;
+      box-shadow: 0 12px 34px rgba(48, 57, 48, 0.07);
+    }
+
+    .map-panel {
+      position: relative;
+      min-width: 0;
+      min-height: 720px;
+      overflow: hidden;
+      border-right: 1px solid var(--line);
+      background-color: #F4F0E4;
+      background-image:
+        radial-gradient(rgba(82, 91, 72, 0.09) 0.65px, transparent 0.65px);
+      background-size: 7px 7px;
+    }
+
+    .map-heading {
+      position: absolute;
+      z-index: 2;
+      top: 24px;
+      left: 28px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #374640;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+    }
+
+    .map-heading span {
+      padding: 5px 9px;
+      border: 1px solid rgba(47, 107, 94, 0.32);
+      border-radius: 999px;
+      color: var(--bamboo);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+    }
+
+    .map-art {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .map-art .district {
+      fill: #EBE8D9;
+      stroke: #D6D3C4;
+      stroke-width: 1.5;
+    }
+
+    .map-art .district-alt {
+      fill: #E7E9D9;
+      stroke: #D6D3C4;
+      stroke-width: 1.5;
+    }
+
+    .map-art .minor-road {
+      fill: none;
+      stroke: #D5D1C2;
+      stroke-width: 2;
+      stroke-linecap: round;
+    }
+
+    .map-art .major-road {
+      fill: none;
+      stroke: #FBF8EE;
+      stroke-width: 8;
+      stroke-linecap: round;
+    }
+
+    .map-art .river-edge {
+      fill: none;
+      stroke: #8CB5C0;
+      stroke-width: 13;
+      stroke-linecap: round;
+      opacity: 0.4;
+    }
+
+    .map-art .river {
+      fill: none;
+      stroke: var(--river);
+      stroke-width: 6;
+      stroke-linecap: round;
+      opacity: 0.76;
+    }
+
+    .map-art .route {
+      fill: none;
+      stroke: var(--bamboo);
+      stroke-width: 2.4;
+      stroke-dasharray: 3 8;
+      stroke-linecap: round;
+      opacity: 0.76;
+    }
+
+    .map-art .place-label {
+      fill: #66716A;
+      font-family: var(--sans);
+      font-size: 13px;
+      letter-spacing: 0.08em;
+    }
+
+    .map-art .small-label {
+      fill: #6C7871;
+      font-family: var(--sans);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+    }
+
+    .map-art .green-patch {
+      fill: #DDE5D2;
+      stroke: #C6D3BE;
+      stroke-width: 1.5;
+    }
+
+    .map-art .hill {
+      fill: none;
+      stroke: #99AE8F;
+      stroke-width: 2;
+      opacity: 0.8;
+    }
+
+    .map-art .leaf {
+      fill: none;
+      stroke: #7A9B7C;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      opacity: 0.7;
+    }
+
+    .marker-layer {
+      position: absolute;
+      inset: 0;
+      overflow: visible;
+    }
+
+    .map-marker {
+      cursor: pointer;
+      outline: none;
+      transition: opacity 180ms ease;
+    }
+
+    .map-marker.is-dimmed {
+      opacity: 0.2;
+    }
+
+    .map-marker .marker-halo {
+      fill: var(--paper);
+      stroke: var(--marker-color);
+      stroke-width: 2.5;
+      transition: r 180ms ease, filter 180ms ease;
+    }
+
+    .map-marker .marker-core {
+      fill: var(--marker-color);
+      stroke: #FBF9F2;
+      stroke-width: 2;
+    }
+
+    .map-marker .marker-label {
+      fill: var(--ink);
+      stroke: #F4F0E4;
+      stroke-width: 4px;
+      paint-order: stroke;
+      font-family: var(--sans);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      pointer-events: none;
+    }
+
+    .map-marker:hover .marker-halo,
+    .map-marker:focus-visible .marker-halo,
+    .map-marker.is-active .marker-halo {
+      r: 16px;
+      filter: drop-shadow(0 3px 4px rgba(31, 42, 42, 0.2));
+    }
+
+    .map-marker:focus-visible .marker-halo {
+      stroke-width: 3.5;
+    }
+
+    .map-tooltip {
+      position: absolute;
+      z-index: 4;
+      width: min(250px, calc(100vw - 48px));
+      padding: 13px 15px;
+      border: 1px solid #CFC9B9;
+      border-radius: 12px;
+      background: #FFFEF9;
+      box-shadow: 0 7px 20px rgba(31, 42, 42, 0.13);
+      pointer-events: none;
+      transform: translate(13px, -50%);
+    }
+
+    .map-tooltip[hidden] {
+      display: none;
+    }
+
+    .tooltip-category {
+      display: block;
+      margin-bottom: 2px;
+      color: var(--bamboo);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+    }
+
+    .tooltip-title {
+      display: block;
+      margin-bottom: 3px;
+      font-family: var(--serif);
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .tooltip-copy {
+      display: block;
+      color: #43504C;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+
+    .map-caption {
+      position: absolute;
+      right: 24px;
+      bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #4B5952;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+    }
+
+    .map-caption::before {
+      width: 22px;
+      border-top: 2px dashed var(--bamboo);
+      content: "";
+    }
+
+    .compass {
+      position: absolute;
+      right: 25px;
+      top: 25px;
+      display: grid;
+      justify-items: center;
+      color: var(--bamboo);
+      font-family: var(--serif);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .compass svg {
+      width: 19px;
+      height: 31px;
+    }
+
+    .sidebar {
+      display: flex;
+      min-height: 720px;
+      flex-direction: column;
+      background: #FBF9F2;
+    }
+
+    .sidebar-top {
+      padding: 24px 23px 17px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section-kicker {
+      margin: 0 0 5px;
+      color: var(--bamboo);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+    }
+
+    .sidebar h2 {
+      margin: 0;
+      font-family: var(--serif);
+      font-size: 23px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+    }
+
+    .sidebar-intro {
+      margin: 7px 0 0;
+      color: #4B5752;
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-top: 17px;
+    }
+
+    .filter-button {
+      min-height: 32px;
+      padding: 5px 11px;
+      border: 1px solid #CFC9B9;
+      border-radius: 999px;
+      background: transparent;
+      color: #35413D;
+      cursor: pointer;
+      font-size: 12px;
+      transition: background-color 160ms ease, color 160ms ease, border-color 160ms ease;
+    }
+
+    .filter-button:hover {
+      border-color: var(--bamboo);
+      color: var(--bamboo);
+    }
+
+    .filter-button[aria-pressed="true"] {
+      border-color: var(--bamboo);
+      background: var(--bamboo);
+      color: #fff;
+    }
+
+    .filter-button:focus-visible,
+    .place-card:focus-visible {
+      outline: 3px solid #246A87;
+      outline-offset: 3px;
+    }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 13px;
+      margin: 14px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .legend li {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: #394640;
+      font-size: 11px;
+    }
+
+    .legend-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--category-color);
+    }
+
+    .selected-place {
+      margin: 16px 18px 4px;
+      padding: 13px 14px 14px;
+      border-left: 3px solid var(--selected-color, var(--bamboo));
+      border-radius: 0 10px 10px 0;
+      background: #F1EEE3;
+    }
+
+    .selected-place .selected-kicker {
+      margin: 0 0 3px;
+      color: #4D5953;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+    }
+
+    .selected-place h3 {
+      margin: 0;
+      font-family: var(--serif);
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .selected-place p {
+      margin: 5px 0 0;
+      color: #394640;
+      font-size: 12px;
+      line-height: 1.65;
+    }
+
+    .place-list-heading {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      padding: 11px 22px 8px;
+    }
+
+    .place-list-heading h3 {
+      margin: 0;
+      font-family: var(--serif);
+      font-size: 15px;
+    }
+
+    .place-count {
+      color: #4B5752;
+      font-size: 11px;
+    }
+
+    .place-list {
+      display: grid;
+      gap: 2px;
+      overflow-y: auto;
+      padding: 0 12px 16px;
+      scrollbar-color: #C5C1B4 transparent;
+      scrollbar-width: thin;
+    }
+
+    .place-card {
+      display: grid;
+      grid-template-columns: 3px minmax(0, 1fr);
+      gap: 11px;
+      width: 100%;
+      padding: 9px 10px;
+      border: 0;
+      border-radius: 9px;
+      background: transparent;
+      color: inherit;
+      text-align: left;
+      cursor: pointer;
+      transition: background-color 160ms ease;
+    }
+
+    .place-card:hover,
+    .place-card.is-active {
+      background: #F0EDE2;
+    }
+
+    .place-card[hidden] {
+      display: none;
+    }
+
+    .place-card-bar {
+      align-self: stretch;
+      min-height: 38px;
+      border-radius: 99px;
+      background: var(--category-color);
+    }
+
+    .place-card-content {
+      min-width: 0;
+    }
+
+    .place-card-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .place-card-title {
+      overflow: hidden;
+      font-size: 13px;
+      font-weight: 700;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .category-tag {
+      flex: 0 0 auto;
+      padding: 1px 7px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--category-color) 12%, white);
+      color: var(--category-color);
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .place-card-copy {
+      display: block;
+      margin-top: 3px;
+      color: #4B5752;
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .empty-state {
+      margin: 0;
+      padding: 18px 12px;
+      color: #43504C;
+      font-size: 13px;
+      text-align: center;
+    }
+
+    .page-footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 3px 0;
+      color: #4B5752;
+      font-size: 11px;
+    }
+
+    .page-footer p {
+      margin: 0;
+    }
+
+    @media (max-width: 980px) {
+      .explorer {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .map-panel {
+        min-height: 620px;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .sidebar {
+        min-height: 0;
+      }
+
+      .place-list {
+        max-height: 380px;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .page {
+        width: min(100% - 28px, 1440px);
+        padding: 30px 0 22px;
+      }
+
+      .page-header {
+        align-items: flex-start;
+        margin-bottom: 21px;
+      }
+
+      .header-note {
+        display: none;
+      }
+
+      h1 {
+        font-size: 36px;
+      }
+
+      .subtitle {
+        max-width: 320px;
+        font-size: 13px;
+      }
+
+      .explorer {
+        border-radius: 15px;
+      }
+
+      .map-panel {
+        min-height: 500px;
+      }
+
+      .map-heading {
+        top: 17px;
+        left: 17px;
+        font-size: 10px;
+      }
+
+      .compass {
+        top: 17px;
+        right: 16px;
+      }
+
+      .map-caption {
+        right: 14px;
+        bottom: 13px;
+        font-size: 10px;
+      }
+
+      .sidebar-top {
+        padding: 20px 17px 15px;
+      }
+
+      .selected-place {
+        margin-right: 14px;
+        margin-left: 14px;
+      }
+
+      .place-list-heading {
+        padding-right: 17px;
+        padding-left: 17px;
+      }
+
+      .map-tooltip {
+        width: min(220px, calc(100vw - 44px));
+      }
+
+      .page-footer {
+        flex-direction: column;
+        gap: 4px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="page-header">
+      <div>
+        <p class="eyebrow">CHENGDU · CITY WALK</p>
+        <h1>成都漫游地图</h1>
+        <p class="subtitle">在竹影与烟火之间，逛一座来了就不想走的城</p>
+      </div>
+      <div class="header-note" aria-label="地图说明：城市漫游手绘示意图">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M5 19c4-5 8-8 14-14M8 5c2 1 3 3 3 5M14 13c2 0 4 1 5 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          <path d="M4 20l2-1-1-2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        一张城市漫游手账
+      </div>
+    </header>
+
+    <section class="explorer" aria-label="成都旅游观光地图与景点导览">
+      <div class="map-panel" id="map-panel">
+        <div class="map-heading">成都 · 漫游手绘图 <span>示意地图</span></div>
+
+        <!-- 城市轮廓、锦江水脉与漫游路径 -->
+        <svg class="map-art" id="map-art" viewBox="0 0 1000 760" preserveAspectRatio="xMidYMid meet" role="img" aria-labelledby="map-title map-desc">
+          <title id="map-title">成都漫游示意地图</title>
+          <desc id="map-desc">以简化街区、水系和虚线路径展示成都城区与西北远郊景点。地图标记可通过键盘聚焦并选择。</desc>
+
+          <path class="district" d="M158 151 246 105 373 118 440 166 432 263 383 325 274 337 188 291 139 220Z"/>
+          <path class="district-alt" d="m434 163 97-54 129 25 86 72-13 100-78 59-137-17-87-84Z"/>
+          <path class="district" d="m180 310 96-49 126 36 49 91-35 106-110 39-97-55-45-83Z"/>
+          <path class="district-alt" d="m451 340 112-27 139 26 88 81-34 105-127 46-129-43-54-87Z"/>
+          <path class="green-patch" d="m101 378 45-28 30 25-12 52-43 15-27-30Z"/>
+          <path class="green-patch" d="m686 132 48-21 35 33-9 40-48 12-29-28Z"/>
+          <path class="green-patch" d="m772 419 45-18 25 29-8 38-43 10-24-25Z"/>
+          <path class="green-patch" d="m486 523 38-19 29 24-10 34-40 8-23-21Z"/>
+
+          <path class="major-road" d="M149 281C271 231 372 248 465 285S653 348 820 302"/>
+          <path class="major-road" d="M270 89C305 206 345 319 402 434S496 583 557 677"/>
+          <path class="major-road" d="M96 472C226 420 340 411 480 447S695 523 856 568"/>
+          <path class="minor-road" d="M174 189c93 38 160 59 241 56m-219 35c78-12 151 0 211 37m-225 46c86-32 174-27 253 4m-231 40c101-27 165-15 230 22"/>
+          <path class="minor-road" d="M503 153c58 50 108 95 158 166m-120-187c-8 86 3 169 34 251m79-215c-41 70-68 139-76 212"/>
+          <path class="minor-road" d="M224 365c43 40 95 82 160 106m-199-29c78-33 155-37 241-10m-190 76c61-42 122-61 187-68"/>
+          <path class="minor-road" d="M497 372c73 30 139 68 194 122m-138-153c-4 78 7 151 37 220m65-194c-26 67-35 129-27 184"/>
+          <path class="minor-road" d="M581 460c83-24 164-23 247 3m-221 34c68-10 134 0 202 31"/>
+
+          <path class="river-edge" d="M619 83C577 160 655 205 614 276S574 396 631 457s26 132 101 196"/>
+          <path class="river" d="M619 83C577 160 655 205 614 276S574 396 631 457s26 132 101 196"/>
+          <path class="river-edge" d="M526 186c-35 59-1 88 45 100s71 41 61 85"/>
+          <path class="river" d="M526 186c-35 59-1 88 45 100s71 41 61 85"/>
+
+          <path class="route" d="M183 482C237 419 278 353 336 291S460 254 501 300s38 92 96 111 82 67 110 112"/>
+          <path class="route" d="M336 291C362 220 395 155 452 112"/>
+          <path class="route" d="M452 112C513 112 549 135 579 170"/>
+
+          <path class="hill" d="M80 119c32-31 63-31 94 0m-78 13c24-22 49-22 73 0m-58 14c17-14 34-14 51 0"/>
+          <path class="hill" d="M834 152c26-26 52-26 78 0m-65 13c18-18 36-18 54 0"/>
+          <path class="leaf" d="M837 574c15-12 29-10 39 5-15 12-29 10-39-5Zm14 2c-2-9 1-17 10-23m-37 38c14-8 26-5 34 9-14 8-26 5-34-9Zm15 3c-1-8 2-14 9-19"/>
+          <path class="leaf" d="M110 574c15-12 29-10 39 5-15 12-29 10-39-5Zm14 2c-2-9 1-17 10-23"/>
+
+          <text class="place-label" x="195" y="188">城西 · 草堂</text>
+          <text class="place-label" x="470" y="204">老城 · 巷陌</text>
+          <text class="place-label" x="672" y="250">城东 · 繁华</text>
+          <text class="place-label" x="238" y="487">城南 · 烟火</text>
+          <text class="small-label" x="652" y="468">锦江</text>
+          <text class="small-label" x="56" y="94">西北远郊</text>
+          <text class="small-label" x="816" y="626">南河</text>
+        </svg>
+
+        <svg class="compass" viewBox="0 0 24 38" aria-label="地图上方为北">
+          <text x="12" y="9" text-anchor="middle" fill="currentColor" font-size="9">N</text>
+          <path d="M12 12 6 29l6-4 6 4-6-17Z" fill="currentColor"/>
+        </svg>
+
+        <svg class="marker-layer" id="marker-layer" viewBox="0 0 1000 760" preserveAspectRatio="xMidYMid meet" aria-label="景点地图标记"></svg>
+
+        <div class="map-tooltip" id="map-tooltip" role="status" hidden>
+          <span class="tooltip-category" id="tooltip-category"></span>
+          <strong class="tooltip-title" id="tooltip-title"></strong>
+          <span class="tooltip-copy" id="tooltip-copy"></span>
+        </div>
+
+        <div class="map-caption">沿着虚线，慢慢逛成都</div>
+      </div>
+
+      <aside class="sidebar" aria-labelledby="sidebar-title">
+        <div class="sidebar-top">
+          <p class="section-kicker">WANDER &amp; DISCOVER</p>
+          <h2 id="sidebar-title">把成都逛进日常</h2>
+          <p class="sidebar-intro">从老街巷走到江边，再去城外看山。挑一处喜欢的地方，开启今天的漫游。</p>
+
+          <div class="filters" role="group" aria-label="按景点类别筛选">
+            <button class="filter-button" type="button" data-filter="全部" aria-pressed="true">全部</button>
+            <button class="filter-button" type="button" data-filter="人文" aria-pressed="false">人文</button>
+            <button class="filter-button" type="button" data-filter="公园" aria-pressed="false">公园</button>
+            <button class="filter-button" type="button" data-filter="美食" aria-pressed="false">美食</button>
+            <button class="filter-button" type="button" data-filter="自然" aria-pressed="false">自然</button>
+            <button class="filter-button" type="button" data-filter="夜游" aria-pressed="false">夜游</button>
+          </div>
+
+          <ul class="legend" aria-label="地图图例">
+            <li><span class="legend-dot" style="--category-color: var(--human)"></span>人文</li>
+            <li><span class="legend-dot" style="--category-color: var(--park)"></span>公园</li>
+            <li><span class="legend-dot" style="--category-color: var(--food)"></span>美食</li>
+            <li><span class="legend-dot" style="--category-color: var(--nature)"></span>自然</li>
+            <li><span class="legend-dot" style="--category-color: var(--night)"></span>夜游</li>
+          </ul>
+        </div>
+
+        <section class="selected-place" id="selected-place" aria-live="polite" aria-atomic="true">
+          <p class="selected-kicker">此刻漫游 · <span id="selected-category">人文</span></p>
+          <h3 id="selected-title">宽窄巷子</h3>
+          <p id="selected-description">青砖黛瓦与茶馆闲话交织，是感受老成都慢生活的好起点。</p>
+        </section>
+
+        <div class="place-list-heading">
+          <h3>城中好去处</h3>
+          <span class="place-count" id="place-count">10 处灵感</span>
+        </div>
+        <div class="place-list" id="place-list" aria-label="景点列表"></div>
+        <p class="empty-state" id="empty-state" hidden>这个类别暂时没有景点，试试其他筛选吧。</p>
+      </aside>
+    </section>
+
+    <footer class="page-footer">
+      <p>地图为城市漫游示意，景点位置与距离并非导航数据。</p>
+      <p>带上好奇心，去街巷里遇见成都。</p>
+    </footer>
+  </main>
+
+  <script>
+    (() => {
+      const categories = {
+        人文: "#2F6B5E",
+        公园: "#557B4E",
+        美食: "#A85D45",
+        自然: "#3A7CA5",
+        夜游: "#8A5473"
+      };
+
+      const places = [
+        {
+          id: "kuanzhai",
+          name: "宽窄巷子",
+          category: "人文",
+          description: "青砖黛瓦与茶馆闲话交织，是感受老成都慢生活的好起点。",
+          x: 448, y: 272, dx: 16, dy: -16
+        },
+        {
+          id: "people-park",
+          name: "人民公园",
+          category: "公园",
+          description: "在鹤鸣茶社点一杯盖碗茶，看本地人的闲适日常。",
+          x: 412, y: 341, dx: -98, dy: 31
+        },
+        {
+          id: "jinli",
+          name: "锦里",
+          category: "美食",
+          description: "红灯笼映着川味小吃，逛一段热闹而鲜活的老街。",
+          x: 331, y: 436, dx: -67, dy: 29
+        },
+        {
+          id: "wuhou",
+          name: "武侯祠",
+          category: "人文",
+          description: "在古柏与红墙之间，读一段三国故事与成都记忆。",
+          x: 365, y: 421, dx: 15, dy: -17
+        },
+        {
+          id: "dufu",
+          name: "杜甫草堂",
+          category: "人文",
+          description: "竹林环绕、茅屋清幽，在诗意园林里寻访少陵踪迹。",
+          x: 221, y: 312, dx: -93, dy: -17
+        },
+        {
+          id: "taikoo",
+          name: "春熙路 / 太古里",
+          category: "夜游",
+          description: "老街气息与当代建筑相遇，白天逛街，入夜看灯火。",
+          x: 594, y: 325, dx: 16, dy: -16
+        },
+        {
+          id: "jiuyan",
+          name: "九眼桥",
+          category: "夜游",
+          description: "沿锦江散步，桥影与两岸灯火铺开成都的夜色。",
+          x: 688, y: 444, dx: 15, dy: 28
+        },
+        {
+          id: "panda",
+          name: "大熊猫繁育研究基地",
+          category: "自然",
+          description: "去城北的绿意里看国宝，清晨通常更容易遇见活力熊猫。",
+          x: 579, y: 171, dx: 17, dy: -12
+        },
+        {
+          id: "qingcheng",
+          name: "青城山",
+          category: "自然",
+          description: "青山叠翠、林径幽深，适合留一整天慢慢呼吸山间空气。",
+          x: 131, y: 120, dx: -78, dy: -18
+        },
+        {
+          id: "dujiangyan",
+          name: "都江堰",
+          category: "人文",
+          description: "走近两千年水利智慧，在岷江边感受人与自然的相处之道。",
+          x: 232, y: 143, dx: 15, dy: 25
+        }
+      ];
+
+      const svgNamespace = "http://www.w3.org/2000/svg";
+      const mapPanel = document.getElementById("map-panel");
+      const markerLayer = document.getElementById("marker-layer");
+      const tooltip = document.getElementById("map-tooltip");
+      const tooltipCategory = document.getElementById("tooltip-category");
+      const tooltipTitle = document.getElementById("tooltip-title");
+      const tooltipCopy = document.getElementById("tooltip-copy");
+      const placeList = document.getElementById("place-list");
+      const emptyState = document.getElementById("empty-state");
+      const placeCount = document.getElementById("place-count");
+      const selectedTitle = document.getElementById("selected-title");
+      const selectedCategory = document.getElementById("selected-category");
+      const selectedDescription = document.getElementById("selected-description");
+      const selectedPanel = document.getElementById("selected-place");
+      const markerElements = new Map();
+      const cardElements = new Map();
+
+      let activePlace = places[0];
+      let activeFilter = "全部";
+      let hoveredPlace = null;
+
+      function createSvgElement(tag, attributes = {}) {
+        const element = document.createElementNS(svgNamespace, tag);
+        for (const [name, value] of Object.entries(attributes)) {
+          element.setAttribute(name, value);
+        }
+        return element;
+      }
+
+      function renderMapMarkers() {
+        places.forEach((place) => {
+          const color = categories[place.category];
+          const marker = createSvgElement("g", {
+            class: "map-marker",
+            transform: `translate(${place.x} ${place.y})`,
+            tabindex: "0",
+            role: "button",
+            "aria-label": `${place.name}，${place.category}。${place.description}`,
+            "aria-pressed": "false",
+            style: `--marker-color: ${color}`
+          });
+
+          marker.append(
+            createSvgElement("circle", {
+              class: "marker-halo",
+              r: "12"
+            }),
+            createSvgElement("circle", {
+              class: "marker-core",
+              r: "5"
+            })
+          );
+
+          const label = createSvgElement("text", {
+            class: "marker-label",
+            x: String(place.dx),
+            y: String(place.dy)
+          });
+          label.textContent = place.name;
+          marker.append(label);
+
+          marker.addEventListener("mouseenter", () => {
+            hoveredPlace = place;
+            showTooltip(place);
+          });
+          marker.addEventListener("mouseleave", () => {
+            hoveredPlace = null;
+            if (document.activeElement !== marker) {
+              refreshTooltip();
+            }
+          });
+          marker.addEventListener("focus", () => {
+            hoveredPlace = place;
+            showTooltip(place);
+          });
+          marker.addEventListener("blur", () => {
+            hoveredPlace = null;
+            refreshTooltip();
+          });
+          marker.addEventListener("click", () => selectPlace(place));
+          marker.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              selectPlace(place);
+            }
+          });
+
+          markerLayer.append(marker);
+          markerElements.set(place.id, marker);
+        });
+      }
+
+      function renderPlaceCards() {
+        places.forEach((place) => {
+          const card = document.createElement("button");
+          card.type = "button";
+          card.className = "place-card";
+          card.dataset.placeId = place.id;
+          card.style.setProperty("--category-color", categories[place.category]);
+          card.setAttribute("aria-label", `${place.name}，${place.category}。${place.description}`);
+
+          const bar = document.createElement("span");
+          bar.className = "place-card-bar";
+          bar.setAttribute("aria-hidden", "true");
+
+          const content = document.createElement("span");
+          content.className = "place-card-content";
+
+          const titleRow = document.createElement("span");
+          titleRow.className = "place-card-title-row";
+
+          const title = document.createElement("span");
+          title.className = "place-card-title";
+          title.textContent = place.name;
+
+          const tag = document.createElement("span");
+          tag.className = "category-tag";
+          tag.textContent = place.category;
+
+          const copy = document.createElement("span");
+          copy.className = "place-card-copy";
+          copy.textContent = place.description;
+
+          titleRow.append(title, tag);
+          content.append(titleRow, copy);
+          card.append(bar, content);
+
+          card.addEventListener("click", () => {
+            selectPlace(place);
+            markerElements.get(place.id).focus();
+          });
+
+          placeList.append(card);
+          cardElements.set(place.id, card);
+        });
+      }
+
+      function showTooltip(place) {
+        const marker = markerElements.get(place.id);
+        if (!marker) return;
+
+        tooltipCategory.textContent = place.category;
+        tooltipTitle.textContent = place.name;
+        tooltipCopy.textContent = place.description;
+        tooltip.hidden = false;
+
+        const panelRect = mapPanel.getBoundingClientRect();
+        const markerRect = marker.getBoundingClientRect();
+        const centerX = markerRect.left + markerRect.width / 2 - panelRect.left;
+        const centerY = markerRect.top + markerRect.height / 2 - panelRect.top;
+        const tooltipWidth = tooltip.offsetWidth;
+        const tooltipHeight = tooltip.offsetHeight;
+
+        let left = centerX + 16;
+        if (left + tooltipWidth > panelRect.width - 12) {
+          left = centerX - tooltipWidth - 16;
+        }
+        left = Math.max(12, Math.min(left, panelRect.width - tooltipWidth - 12));
+
+        const top = Math.max(
+          tooltipHeight / 2 + 12,
+          Math.min(centerY, panelRect.height - tooltipHeight / 2 - 12)
+        );
+
+        tooltip.style.left = `${left}px`;
+        tooltip.style.top = `${top}px`;
+        tooltip.style.transform = left < centerX
+          ? "translate(-13px, -50%)"
+          : "translate(13px, -50%)";
+      }
+
+      function refreshTooltip() {
+        const selectedMarker = markerElements.get(activePlace.id);
+        if (hoveredPlace) {
+          showTooltip(hoveredPlace);
+        } else if (selectedMarker && document.activeElement === selectedMarker) {
+          showTooltip(activePlace);
+        } else {
+          tooltip.hidden = true;
+        }
+      }
+
+      function selectPlace(place) {
+        activePlace = place;
+        selectedTitle.textContent = place.name;
+        selectedCategory.textContent = place.category;
+        selectedDescription.textContent = place.description;
+        selectedPanel.style.setProperty("--selected-color", categories[place.category]);
+
+        places.forEach((item) => {
+          const selected = item.id === place.id;
+          markerElements.get(item.id).classList.toggle("is-active", selected);
+          markerElements.get(item.id).setAttribute("aria-pressed", String(selected));
+          cardElements.get(item.id).classList.toggle("is-active", selected);
+        });
+
+        showTooltip(place);
+      }
+
+      function applyFilter(category) {
+        activeFilter = category;
+
+        document.querySelectorAll(".filter-button").forEach((button) => {
+          button.setAttribute("aria-pressed", String(button.dataset.filter === category));
+        });
+
+        let visibleCount = 0;
+        places.forEach((place) => {
+          const matches = category === "全部" || place.category === category;
+          const marker = markerElements.get(place.id);
+          const card = cardElements.get(place.id);
+
+          marker.classList.toggle("is-dimmed", !matches);
+          card.hidden = !matches;
+
+          if (matches) visibleCount += 1;
+        });
+
+        placeCount.textContent = `${visibleCount} 处灵感`;
+        emptyState.hidden = visibleCount !== 0;
+
+        if (activeFilter !== "全部" && !places.some((place) => place.category === activeFilter)) {
+          emptyState.hidden = false;
+        }
+      }
+
+      document.querySelectorAll(".filter-button").forEach((button) => {
+        button.addEventListener("click", () => applyFilter(button.dataset.filter));
+      });
+
+      window.addEventListener("resize", refreshTooltip);
+
+      renderMapMarkers();
+      renderPlaceCards();
+      selectPlace(activePlace);
+      applyFilter(activeFilter);
+    })();
+  </script>
+</body>
+</html>
