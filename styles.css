@@ -149,9 +149,16 @@ html[data-theme="home"] .brand-mark { border-color: #b94f45; color: #b94f45; }
 }
 .section-heading > p:last-child { margin: 0; color: var(--muted); font-size: 14px; }
 .eyebrow { margin: 0; color: var(--accent); font-size: 10px; font-weight: 700; letter-spacing: .18em; }
-.video-frame { position: relative; overflow: hidden; background: #d7d4cb; }
-.video-frame video { width: 100%; max-height: 620px; aspect-ratio: 16 / 8.5; object-fit: cover; }
-.video-caption { position: absolute; bottom: 20px; left: 22px; padding: 5px 12px; background: rgba(24,35,29,.65); color: white; font-size: 12px; letter-spacing: .08em; pointer-events: none; }
+.chengdu-feature { display: grid; grid-template-columns: .9fr 1.1fr; gap: clamp(32px, 6vw, 78px); align-items: center; }
+.chengdu-feature-image { position: relative; min-height: 360px; overflow: hidden; background: var(--accent-soft); }
+.chengdu-feature-image svg { display: block; width: 100%; height: 100%; min-height: 360px; }
+.chengdu-feature-image > span { position: absolute; right: 0; bottom: 22px; padding: 8px 16px; background: rgba(24,35,29,.76); color: white; font-size: 12px; letter-spacing: .08em; }
+.chengdu-feature-copy h2 { margin: 8px 0 16px; font-family: var(--serif); font-size: clamp(27px, 3.2vw, 38px); font-weight: 500; letter-spacing: .04em; line-height: 1.5; }
+.chengdu-feature-copy > p:not(.eyebrow) { margin: 0; color: #566159; font-size: 14px; line-height: 2; }
+.chengdu-feature-points { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 24px 0 18px; padding: 18px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.chengdu-feature-points div { display: grid; gap: 4px; }
+.chengdu-feature-points strong { color: var(--accent); font-family: var(--serif); font-size: 15px; font-weight: 500; }
+.chengdu-feature-points span { color: var(--muted); font-size: 11px; }
 .intro-section { display: grid; grid-template-columns: 220px 1fr; gap: 70px; align-items: center; border-top: 1px solid var(--line); }
 .intro-stamp { display: grid; width: 190px; height: 190px; place-content: center; border: 1px solid var(--accent); border-radius: 50%; color: var(--accent); font-family: var(--serif); font-size: 31px; line-height: 1.4; text-align: center; transform: rotate(-10deg); }
 .intro-copy { max-width: 840px; color: #566159; font-size: 15px; line-height: 2.1; }
@@ -288,6 +295,10 @@ html[data-theme="home"] .brand-mark { border-color: #b94f45; color: #b94f45; }
   .carousel-controls { right: 24px; }
   .hero-index { left: 28px; }
   .section { width: calc(100% - 36px); padding: 62px 0; }
+  .chengdu-feature { grid-template-columns: 1fr; gap: 26px; }
+  .chengdu-feature-image, .chengdu-feature-image svg { min-height: 260px; }
+  .chengdu-feature-points { gap: 8px; }
+  .chengdu-feature-points span { font-size: 10px; }
   .intro-section { grid-template-columns: 1fr; gap: 26px; }
   .intro-stamp { width: 130px; height: 130px; font-size: 23px; }
   .quick-links, .food-grid { grid-template-columns: 1fr; }
